@@ -144,13 +144,38 @@ int main(int argc, char** argv)
     // create cloud
     std::cout << "Start reading input file" << std::endl;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PLYReader Reader;
-    if (Reader.read(input_path, *cloud) == -1)
-    {
-        std::cerr << "Failed to read input file: " << input_path << std::endl;
+
+    std::string::size_type idx = input_path.find_last_of('.');
+    if(idx != std::string::npos) {
+        std::string ext = input_path.substr(idx+1);
+        if(ext == "ply"){
+            pcl::PLYReader Reader;
+            if (Reader.read(input_path, *cloud) == -1)
+                {
+                    std::cerr << "Failed to read input file: " << input_path << std::endl;
+                    return (-1);
+                }
+            std::cout << "Finish reading input file (.ply)" << std::endl;
+        }
+        else if(ext == "pcd"){
+            if ( pcl::io::loadPCDFile <pcl::PointXYZRGB> (input_path, *cloud) == -1)
+                {
+                    std::cout << "Cloud reading failed." << std::endl;
+                    return (-1);
+                }
+            std::cout << "Finish reading input file (.pcd)" << std::endl;
+        }
+        else{
+            std::cout << "Cloud reading failed." << std::endl;
+            return (-1);
+        }
+    } else {
+        std::cout << "Cloud reading failed." << std::endl;
         return (-1);
     }
-    std::cout << "Finish reading input file" << std::endl;
+    return 0;
+
+    
 
     // スレッドを作成して処理を開始
     std::vector<std::thread> threads;
