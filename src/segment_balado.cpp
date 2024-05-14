@@ -173,9 +173,6 @@ int main(int argc, char** argv)
         std::cout << "Cloud reading failed." << std::endl;
         return (-1);
     }
-    return 0;
-
-    
 
     // スレッドを作成して処理を開始
     std::vector<std::thread> threads;
