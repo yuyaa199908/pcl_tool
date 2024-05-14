@@ -17,12 +17,14 @@
 #include <thread>
 
 #include "yaml-cpp/yaml.h"
+#include "../include/balado/region_growing_balado.hpp"
 
 typedef struct {
     int k_search;
     int min_cluster_size;
     int max_cluster_size;
     int number_of_neighbours;
+    double distance_of_neighbours;
     double smoothness_threshold_rad;
     double curvature_threshold;
     double residual_threshold;
@@ -42,6 +44,7 @@ rg_param get_param(std::string yaml_path){
     param.min_cluster_size = param_yaml["min_cluster_size"].as<int>();
     param.max_cluster_size = param_yaml["max_cluster_size"].as<int>();
     param.number_of_neighbours = param_yaml["number_of_neighbours"].as<int>();
+    param.distance_of_neighbours = param_yaml["distance_of_neighbours"].as<double>();
     param.smoothness_threshold_rad = param_yaml["smoothness_threshold_rad"].as<double>();
     param.curvature_threshold = param_yaml["curvature_threshold"].as<double>();
     param.residual_threshold = param_yaml["residual_threshold"].as<double>();
@@ -68,7 +71,7 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
 
     pcl::IndicesPtr indices (new std::vector <int>);
     pcl::removeNaNFromPointCloud(*cloud, *indices);
-    pcl::RegionGrowing<pcl::PointXYZRGB, pcl::Normal> reg;
+    pcl::RegionGrowingBalado<pcl::PointXYZRGB, pcl::Normal> reg;
 
     reg.setSmoothModeFlag (rg_param.smooth_mode_flag);
     reg.setCurvatureTestFlag (rg_param.curvature_test_flag);
@@ -77,6 +80,7 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
     reg.setMaxClusterSize (rg_param.max_cluster_size);
     reg.setSearchMethod (tree);
     reg.setNumberOfNeighbours (rg_param.number_of_neighbours); //30
+    reg.setDistanceOfNeighbours (rg_param.distance_of_neighbours);
     reg.setInputCloud (cloud);
     reg.setIndices (indices);
     reg.setInputNormals (normals);
@@ -84,7 +88,7 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
     reg.setCurvatureThreshold (rg_param.curvature_threshold);
     reg.setResidualThreshold (rg_param.residual_threshold);
 
-    std::cout << "region growing" << std::endl;
+    std::cout << "region growing Balado" << std::endl;
     std::vector <pcl::PointIndices> clusters;
     reg.extract (clusters);
 

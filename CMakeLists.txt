@@ -29,8 +29,15 @@ add_executable (region_growing_p src/region_growing_p.cpp)
 target_link_libraries (region_growing_p ${PCL_LIBRARIES})
 target_link_libraries (region_growing_p PUBLIC yaml-cpp::yaml-cpp)
 
-add_executable (region_growing_ori src/region_growing_ori.cpp)
-target_link_libraries (region_growing_ori ${PCL_LIBRARIES})
 
-add_executable (adjacent src/adjacent.cpp)
-target_link_libraries (adjacent ${PCL_LIBRARIES})
+# add_executable (region_growing_voxel src/region_growing_voxel.cpp)
+# target_link_libraries (region_growing_voxel ${PCL_LIBRARIES})
+# target_link_libraries (region_growing_voxel PUBLIC yaml-cpp::yaml-cpp)
+
+
+# add_executable (region_growing_ori src/region_growing_ori.cpp)
+# target_link_libraries (region_growing_ori ${PCL_LIBRARIES})
+
+add_executable (segment_balado src/segment_balado.cpp include/balado/region_growing_balado.hpp)
+target_link_libraries (segment_balado ${PCL_LIBRARIES})
+target_link_libraries (segment_balado PUBLIC yaml-cpp::yaml-cpp)
