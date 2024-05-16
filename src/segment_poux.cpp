@@ -15,8 +15,9 @@
 #include <regex>
 #include <pcl/common/pca.h>
 #include <thread>
+#include "../include/util/io.hpp"
 
-#include "yaml-cpp/yaml.h"
+// #include "yaml-cpp/yaml.h"
 
 /*
 moothness_threshold_rad = a
@@ -24,45 +25,6 @@ residual_threshold = 3ϵ
 min_cluster_size = τ
 curvature_threshold　= 1/(2ϵ)
 */
-
-
-typedef struct {
-    int k_search;
-    int min_cluster_size;
-    int max_cluster_size;
-    int number_of_neighbours;
-    double distance_of_neighbours;
-    double smoothness_threshold_rad;
-    double curvature_threshold;
-    double residual_threshold;
-    bool smooth_mode_flag;
-    bool curvature_test_flag;
-    bool residual_test_flag;
-    std::string output_dir;
-    bool is_coloring;
-} rg_param;
-
-rg_param get_param(std::string yaml_path){
-    rg_param param;
-
-    YAML::Node param_yaml = YAML::LoadFile(yaml_path);
-
-    param.k_search = param_yaml["k_search"].as<int>();
-    param.min_cluster_size = param_yaml["min_cluster_size"].as<int>();
-    param.max_cluster_size = param_yaml["max_cluster_size"].as<int>();
-    param.number_of_neighbours = param_yaml["number_of_neighbours"].as<int>();
-    param.smoothness_threshold_rad = param_yaml["smoothness_threshold_rad"].as<double>();
-    param.curvature_threshold = param_yaml["curvature_threshold"].as<double>();
-    param.residual_threshold = param_yaml["residual_threshold"].as<double>();
-    param.smooth_mode_flag = param_yaml["smooth_mode_flag"].as<bool>();
-    param.curvature_test_flag = param_yaml["curvature_test_flag"].as<bool>();
-    param.residual_test_flag = param_yaml["residual_test_flag"].as<bool>();
-    param.output_dir = param_yaml["output_dir"].as<std::string>();
-    param.is_coloring = param_yaml["is_coloring"].as<bool>();
-    std::cout << "Finish reading: "<< yaml_path << std::endl;
-
-    return param;
-}
 
 void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
 {
@@ -97,8 +59,6 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
     std::vector <pcl::PointIndices> clusters;
 
     reg.extract (clusters);
-
-    std::filesystem::create_directories(rg_param.output_dir);
 
     std::cout << "saving output" << std::endl;
     if(rg_param.is_coloring){
@@ -144,6 +104,10 @@ int main(int argc, char** argv)
         std::cout <<"yaml_path ("<<(i-2)<<") : " << argv[i]<< std::endl;
         std::string yaml_path = argv[i];
         rg_param rg_param = get_param(yaml_path);
+
+        std::filesystem::create_directories(rg_param.output_dir);
+        copy_yml(yaml_path, rg_param.output_dir + "/"  + "param.yml");
+
         rg_params.push_back(rg_param);
     }
     
