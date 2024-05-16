@@ -18,11 +18,20 @@
 
 #include "yaml-cpp/yaml.h"
 
+/*
+moothness_threshold_rad = a
+residual_threshold = 3ϵ
+min_cluster_size = τ
+curvature_threshold　= 1/(2ϵ)
+*/
+
+
 typedef struct {
     int k_search;
     int min_cluster_size;
     int max_cluster_size;
     int number_of_neighbours;
+    double distance_of_neighbours;
     double smoothness_threshold_rad;
     double curvature_threshold;
     double residual_threshold;
@@ -76,7 +85,7 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
     reg.setMinClusterSize (rg_param.min_cluster_size); 
     reg.setMaxClusterSize (rg_param.max_cluster_size);
     reg.setSearchMethod (tree);
-    reg.setNumberOfNeighbours (rg_param.number_of_neighbours); //30
+    reg.setNumberOfNeighbours (rg_param.number_of_neighbours);
     reg.setInputCloud (cloud);
     reg.setIndices (indices);
     reg.setInputNormals (normals);
@@ -86,6 +95,7 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
 
     std::cout << "region growing" << std::endl;
     std::vector <pcl::PointIndices> clusters;
+
     reg.extract (clusters);
 
     std::filesystem::create_directories(rg_param.output_dir);
@@ -140,13 +150,35 @@ int main(int argc, char** argv)
     // create cloud
     std::cout << "Start reading input file" << std::endl;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PLYReader Reader;
-    if (Reader.read(input_path, *cloud) == -1)
-    {
-        std::cerr << "Failed to read input file: " << input_path << std::endl;
+
+    std::string::size_type idx = input_path.find_last_of('.');
+    if(idx != std::string::npos) {
+        std::string ext = input_path.substr(idx+1);
+        if(ext == "ply"){
+            pcl::PLYReader Reader;
+            if (Reader.read(input_path, *cloud) == -1)
+                {
+                    std::cerr << "Failed to read input file: " << input_path << std::endl;
+                    return (-1);
+                }
+            std::cout << "Finish reading input file (.ply)" << std::endl;
+        }
+        else if(ext == "pcd"){
+            if ( pcl::io::loadPCDFile <pcl::PointXYZRGB> (input_path, *cloud) == -1)
+                {
+                    std::cout << "Cloud reading failed." << std::endl;
+                    return (-1);
+                }
+            std::cout << "Finish reading input file (.pcd)" << std::endl;
+        }
+        else{
+            std::cout << "Cloud reading failed." << std::endl;
+            return (-1);
+        }
+    } else {
+        std::cout << "Cloud reading failed." << std::endl;
         return (-1);
     }
-    std::cout << "Finish reading input file" << std::endl;
 
     // スレッドを作成して処理を開始
     std::vector<std::thread> threads;
