@@ -40,6 +40,21 @@ namespace pcl
             double getDistanceOfNeighbours(){
                 return (neighbour_distance_);
             }
+            
+            void extractUnassigned(pcl::PointIndices& unassigned_){
+                unassigned_.indices = *this->indices_;
+
+                for (const auto& i_segment : this->clusters_)
+                {
+                    for (const auto& index : (i_segment.indices))
+                    {
+                        unassigned_.indices.erase(
+                            std::remove(unassigned_.indices.begin(), unassigned_.indices.end(), index),
+                            unassigned_.indices.end()
+                        );
+                    }
+                }
+            }
 
         protected:
             void findPointNeighbours (){
@@ -69,7 +84,7 @@ namespace pcl
                     }
                 }
             }
-            
+
     };
 }
 

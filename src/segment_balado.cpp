@@ -90,7 +90,10 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
 
     std::cout << "region growing Balado" << std::endl;
     std::vector <pcl::PointIndices> clusters;
+    pcl::PointIndices unassigned;
+
     reg.extract (clusters);
+    reg.extractUnassigned (unassigned);
 
     std::filesystem::create_directories(rg_param.output_dir);
 
@@ -114,6 +117,15 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
             std::string output_path = rg_param.output_dir + "/"  + std::to_string(i) + ".pcd";
             pcl::io::savePCDFileASCII(output_path, *extracted_cloud);
         }
+
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr extracted_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+        pcl::PointIndices::Ptr ind(new pcl::PointIndices(unassigned));
+        extract.setInputCloud (cloud);
+        extract.setIndices (ind);
+        extract.filter (*extracted_cloud);
+        extract.setNegative(false);
+        std::string output_path = rg_param.output_dir + "/"  + "unassigned.pcd";
+        pcl::io::savePCDFileASCII(output_path, *extracted_cloud);
     }
 }
 
