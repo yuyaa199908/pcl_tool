@@ -24,11 +24,11 @@ if(NOT yaml-cpp_POPULATED)
   add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR})
 endif()
 
-add_executable (segment_balado src/segment_balado.cpp include/util/io.hpp include/balado/region_growing_balado.hpp)
+add_executable (segment_balado src/segment_balado.cpp include/util/io.hpp include/rg/region_growing_balado.hpp)
 target_link_libraries (segment_balado ${PCL_LIBRARIES})
 target_link_libraries (segment_balado PUBLIC yaml-cpp::yaml-cpp)
 
-add_executable (segment_poux src/segment_poux.cpp include/util/io.hpp)
+add_executable (segment_poux src/segment_poux.cpp include/util/io.hpp include/rg/region_growing_poux.hpp)
 target_link_libraries (segment_poux ${PCL_LIBRARIES})
 target_link_libraries (segment_poux PUBLIC yaml-cpp::yaml-cpp)
 

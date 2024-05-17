@@ -30,6 +30,7 @@ rg_param get_param(std::string yaml_path){
     param.min_cluster_size = param_yaml["min_cluster_size"].as<int>();
     param.max_cluster_size = param_yaml["max_cluster_size"].as<int>();
     param.number_of_neighbours = param_yaml["number_of_neighbours"].as<int>();
+    param.distance_of_neighbours = param_yaml["distance_of_neighbours"].as<double>();
     param.smoothness_threshold_rad = param_yaml["smoothness_threshold_rad"].as<double>();
     param.curvature_threshold = param_yaml["curvature_threshold"].as<double>();
     param.residual_threshold = param_yaml["residual_threshold"].as<double>();

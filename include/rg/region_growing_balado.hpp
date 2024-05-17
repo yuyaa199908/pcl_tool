@@ -1,15 +1,7 @@
-// #include <pcl/memory.h>
-// #include <pcl/pcl_base.h>
-// #include <pcl/pcl_macros.h>
-// #include <pcl/search/search.h>
-// #include <pcl/point_cloud.h>
-// #include <pcl/point_types.h>
-
 #ifndef PCL_REGION_GROWING_BALADO_H_
 #define PCL_REGION_GROWING_BALADO_H_
 
 #include <pcl/segmentation/region_growing.h>
-
 
 namespace pcl
 {
@@ -30,7 +22,6 @@ namespace pcl
             // using PCLBase <PointT>::deinitCompute;
 
             double neighbour_distance_ {0.05};
-            unsigned int neighbour_number_ {50};
 
             // KdTreePtr search_{nullptr};
             void setDistanceOfNeighbours (double neighbour_distance){
@@ -41,7 +32,7 @@ namespace pcl
                 return (neighbour_distance_);
             }
             
-            void extractUnassigned(pcl::PointIndices& unassigned_){
+            void extractUnassigned (pcl::PointIndices& unassigned_){
                 unassigned_.indices = *this->indices_;
 
                 for (const auto& i_segment : this->clusters_)
@@ -67,7 +58,7 @@ namespace pcl
                     {
                         neighbours.clear ();
                         // search_->nearestKSearch (point_index, neighbour_number_, neighbours, distances);
-                        this->search_->radiusSearch (point_index, neighbour_distance_, neighbours, distances,neighbour_number_);  //error
+                        this->search_->radiusSearch (point_index, neighbour_distance_, neighbours, distances, this->neighbour_number_);  //error
                         this->point_neighbours_[point_index].swap (neighbours);
                     }
                 }
@@ -79,7 +70,7 @@ namespace pcl
                         if (!pcl::isFinite ((*this->input_)[point_index])) continue;
                         neighbours.clear ();
                         // search_->nearestKSearch (point_index, neighbour_number_, neighbours, distances);
-                        this->search_->radiusSearch (point_index, neighbour_distance_, neighbours, distances,neighbour_number_);
+                        this->search_->radiusSearch (point_index, neighbour_distance_, neighbours, distances,this->neighbour_number_);
                         this->point_neighbours_[point_index].swap (neighbours);
                     }
                 }

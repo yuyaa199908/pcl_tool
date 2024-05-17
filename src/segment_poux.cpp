@@ -15,6 +15,8 @@
 #include <regex>
 #include <pcl/common/pca.h>
 #include <thread>
+
+#include "../include/rg/region_growing_poux.hpp"
 #include "../include/util/io.hpp"
 
 // #include "yaml-cpp/yaml.h"
@@ -39,7 +41,7 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
 
     pcl::IndicesPtr indices (new std::vector <int>);
     pcl::removeNaNFromPointCloud(*cloud, *indices);
-    pcl::RegionGrowing<pcl::PointXYZRGB, pcl::Normal> reg;
+    pcl::RegionGrowingPoux<pcl::PointXYZRGB, pcl::Normal> reg;
 
     reg.setSmoothModeFlag (rg_param.smooth_mode_flag);
     reg.setCurvatureTestFlag (rg_param.curvature_test_flag);
@@ -55,10 +57,15 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
     reg.setCurvatureThreshold (rg_param.curvature_threshold);
     reg.setResidualThreshold (rg_param.residual_threshold);
 
-    std::cout << "region growing" << std::endl;
+    std::cout << "RegionGrowingPoux" << std::endl;
+    std::cout << "Search: knn(n = "<<rg_param.number_of_neighbours<<")" << std::endl;
     std::vector <pcl::PointIndices> clusters;
-
     reg.extract (clusters);
+
+    // TODO
+    // std::cout << "Extract unassigned cloud" << std::endl;
+    // pcl::PointIndices unassigned;
+    // reg.extractUnassigned (unassigned);
 
     std::cout << "saving output" << std::endl;
     if(rg_param.is_coloring){
@@ -76,10 +83,18 @@ void split_pcd(pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud, rg_param rg_param)
             extract.setIndices (ind);
             extract.filter (*extracted_cloud);
             extract.setNegative(false);
-
             std::string output_path = rg_param.output_dir + "/"  + std::to_string(i) + ".pcd";
             pcl::io::savePCDFileASCII(output_path, *extracted_cloud);
         }
+
+        // pcl::PointCloud<pcl::PointXYZRGB>::Ptr extracted_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+        // pcl::PointIndices::Ptr ind(new pcl::PointIndices(unassigned));
+        // extract.setInputCloud (cloud);
+        // extract.setIndices (ind);
+        // extract.filter (*extracted_cloud);
+        // extract.setNegative(false);
+        // std::string output_path = rg_param.output_dir + "/"  + "unassigned.pcd";
+        // pcl::io::savePCDFileASCII(output_path, *extracted_cloud);
     }
 }
 
